@@ -19,8 +19,12 @@ namespace Gnomes.Actor {
     [CreateAssetMenu(fileName = "New Actor Details", menuName = "GNOME/Actor Details")]
     public class ActorDetails : SerializedScriptableObject {
 
+        [HorizontalGroup("DetailsSplit", 0.8f), VerticalGroup("DetailsSplit/Right")]
+        [SerializeField]
+        public Sprite ActorIcon;
+        
         [HorizontalGroup("DetailsSplit",0.8f), VerticalGroup("DetailsSplit/Left")]
-        [SerializeField] 
+        [SerializeField]
         public string ActorName;
 
         [HorizontalGroup("DetailsSplit", 0.8f), VerticalGroup("DetailsSplit/Left")] [SerializeField]
@@ -32,5 +36,9 @@ namespace Gnomes.Actor {
         [HorizontalGroup("DetailsSplit",0.8f), VerticalGroup("DetailsSplit/Left")]
         [SerializeField] 
         public ActorBrain BrainBehavior;
+        
+        [HorizontalGroup("DetailsSplit",0.8f), VerticalGroup("DetailsSplit/Left")]
+        [SerializeField]
+        public ActorAnimationBehavior AnimationBehavior;
     }
 }

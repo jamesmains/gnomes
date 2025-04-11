@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Gnomes.Actor.Component;
+using Parent_House_Framework.Interactions;
 using Sirenix.OdinInspector;
 using UnityEngine;
 

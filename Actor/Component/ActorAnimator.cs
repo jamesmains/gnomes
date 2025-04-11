@@ -2,6 +2,16 @@ using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace Gnomes.Actor.Component {
+    /// <summary>
+    /// Animator Todo:
+    /// 1.) Figure out how to integrate ActorAnimationBehavior
+    /// |-> ? Possible solution ?
+    /// |---> 1.) Use conditions to find matching animations
+    /// |---> 2.) If multiple, sort by a priority
+    /// |---> 3.) Play first animation
+    /// |---> NOTE: This requires a class from an outside package (parent-house-framework)
+    /// </summary>
+    
     [RequireComponent(typeof(Actor))]
     public class ActorAnimator : ActorComponent {
         [SerializeField, FoldoutGroup("Settings")]
@@ -9,9 +19,6 @@ namespace Gnomes.Actor.Component {
     
         [SerializeField, FoldoutGroup("Dependencies")]
         private Transform ScaledTransform;
-    
-        [SerializeField, FoldoutGroup("Dependencies")]
-        private SpriteRenderer ActorGfx;
 
         [SerializeField, FoldoutGroup("Dependencies"), ReadOnly]
         private Animator Anim;
@@ -70,7 +77,6 @@ namespace Gnomes.Actor.Component {
         protected override void HandleActorDeath() {
             base.HandleActorDeath();
             Anim.SetTrigger(DeathTriggerAnimationId);
-            Debug.Log("Dying Animation");
         }
 
         [Button]
