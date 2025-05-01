@@ -1,10 +1,10 @@
 namespace Gnomes.Actor.Behavior {
-    public class ActorAimBehavior : ActorBehavior {
+    public class _TemplateBehavior : ActorBehavior {
         public override ActorBehavior Create<T>(Actor owner) {
-            return new ActorAimBehavior(owner);
+            return new _TemplateBehavior(owner);
         }
 
-        public ActorAimBehavior(Actor ownerActor) : base(ownerActor) {
+        public _TemplateBehavior(Actor ownerActor) : base(ownerActor) {
         }
 
         public override void Update() {

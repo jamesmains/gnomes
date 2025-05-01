@@ -1,5 +1,6 @@
 using System;
 using Gnomes.Actor.Behavior;
+using Gnomes.Actor.Behavior.Animation;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -19,8 +20,8 @@ namespace Gnomes.Actor {
     [CreateAssetMenu(fileName = "New Actor Details", menuName = "GNOME/Actor Details")]
     public class ActorDetails : SerializedScriptableObject {
 
-        [HorizontalGroup("DetailsSplit", 0.8f), VerticalGroup("DetailsSplit/Right")]
-        [SerializeField]
+        [HorizontalGroup("DetailsSplit", 0.2f), VerticalGroup("DetailsSplit/Right")]
+        [SerializeField, PreviewField]
         public Sprite ActorIcon;
         
         [HorizontalGroup("DetailsSplit",0.8f), VerticalGroup("DetailsSplit/Left")]
@@ -36,9 +37,5 @@ namespace Gnomes.Actor {
         [HorizontalGroup("DetailsSplit",0.8f), VerticalGroup("DetailsSplit/Left")]
         [SerializeField] 
         public ActorBrain BrainBehavior;
-        
-        [HorizontalGroup("DetailsSplit",0.8f), VerticalGroup("DetailsSplit/Left")]
-        [SerializeField]
-        public ActorAnimationBehavior AnimationBehavior;
     }
 }

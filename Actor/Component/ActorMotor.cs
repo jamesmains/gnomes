@@ -1,64 +1,57 @@
-using System.Collections.Generic;
-using Pathfinding;
+
+using System;
+using Gnomes.Actor.Behavior.Motor;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
 // Todo: Maybe find a new nav agent component
 namespace Gnomes.Actor.Component {
-    [RequireComponent(typeof(FollowerEntity))]
     public class ActorMotor : ActorComponent
     {
-        [SerializeField, FoldoutGroup("Dependencies"), ReadOnly]
-        public FollowerEntity Agent;
+        [SerializeField, FoldoutGroup("Settings")]
+        private ActorMotorBehavior MotorBehavior;
 
         [SerializeField, FoldoutGroup("Status"), ReadOnly]
         public int FacingDirection; // -1 left, 1 right
 
         [SerializeField, FoldoutGroup("Status"), ReadOnly]
-        private float CachedStopDistance;
+        public bool IsMoving;
 
         protected override void OnEnable() {
             base.OnEnable();
-            if(Agent == null)
-                Agent = GetComponent<FollowerEntity>();
             FacingDirection = 1;
-            Actor.OnMoveActor += MoveAgent;
-            Actor.OnPossessed += HandlePossession;
-            Actor.OnReleasePossession += HandleReleasePossession;
-            Actor.OnActorSet += HandleSwapActor;
+            FetchDependencies();
         }
 
-        protected override void OnDisable() {
-            base.OnDisable();
-            Actor.OnMoveActor -= MoveAgent;
-            Actor.OnPossessed -= HandlePossession;
-            Actor.OnReleasePossession -= HandleReleasePossession;
-            Actor.OnActorSet -= HandleSwapActor;
+        private void FetchDependencies() {
+            MotorBehavior = MotorBehavior.Create<ActorMotorBehavior>(this.Actor) as ActorMotorBehavior;
         }
 
-        private void MoveAgent(Vector3 moveTarget, bool asDirection) {
+        private void Update() {
+            MotorBehavior.Update();
+        }
+
+        private void FixedUpdate() {
+            MotorBehavior.FixedUpdate();
+        }
+
+        protected override void HandleMove(Vector3 targetVector, bool asDirection) {
             if (Actor.Dead) return;
-            var targetPosition = asDirection ? transform.position + moveTarget: moveTarget;
-            if (Agent.destination != targetPosition) {
-                Agent.SetDestination(targetPosition);
-                if(moveTarget.x != 0)
-                    FacingDirection = moveTarget.x > 0 ? -1 : 1;
-            }
+            MotorBehavior.Move(targetVector, asDirection);
         }
 
-        private void HandleSwapActor(ActorDetails actorDetails) {
-            CachedStopDistance = Actor.CurrentStopDistance;
-            Agent.stopDistance = Actor.Possessed ? 0 : CachedStopDistance;
+        protected override void HandleActorChanged(ActorDetails actorDetails) {
+            MotorBehavior.HandleActorChanged(actorDetails);
         }
 
-        private void HandlePossession(Actor actor) {
+        protected override void HandlePossession(Actor actor) {
             if (actor != Actor) return;
-            Agent.stopDistance = 0f;
+            MotorBehavior.HandlePossession(actor);
         }
 
-        private void HandleReleasePossession(Actor actor) {
+        protected override void HandleReleasePossession(Actor actor) {
             if (actor != Actor) return;
-            Agent.stopDistance = CachedStopDistance;
+            MotorBehavior.HandleReleasePossession(actor);
         }
     }
 }

@@ -1,17 +1,16 @@
 using System.Collections.Generic;
-using Gnomes.Actor.Component;
 using Parent_House_Framework.Interactions;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace Gnomes.Actor.Extension.Interactions {
+namespace Gnomes.Actor.Component.Extensions.parent_house.Interactions {
     public enum InteractionDetectionMode {
         _2d,
         _3d
     }
 
     public class ActorInteractor : ActorComponent {
-        [SerializeField, BoxGroup("Settings")]
+        [SerializeField, FoldoutGroup("Settings")]
         private InteractionDetectionMode DetectionMode = InteractionDetectionMode._3d;
 
         private readonly Dictionary<GameObject, IInteractable> NearbyTriggers = new();

@@ -2,7 +2,7 @@ using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace Gnomes.Actor.Component {
-    public class ActorComponent: MonoBehaviour {
+    public class ActorComponent: SerializedMonoBehaviour {
     
         [SerializeField, FoldoutGroup("Dependencies"),ReadOnly]
         public Actor Actor;
@@ -10,13 +10,17 @@ namespace Gnomes.Actor.Component {
         protected virtual void OnEnable() {
             if(Actor == null) Actor = GetComponent<Actor>();
         
+            Actor.OnMoveActor += HandleMove;
+            Actor.OnPossessed += HandlePossession;
+            Actor.OnReleasePossession += HandleReleasePossession;
             Actor.OnActorSet += HandleActorChanged;
-            Actor.OnDeath += HandleActorDeath;
         }
     
         protected virtual void OnDisable() {
+            Actor.OnMoveActor -= HandleMove;
+            Actor.OnPossessed -= HandlePossession;
+            Actor.OnReleasePossession -= HandleReleasePossession;
             Actor.OnActorSet -= HandleActorChanged;
-            Actor.OnDeath -= HandleActorDeath;
         }
     
         protected virtual void HandleActorChanged(ActorDetails newDetails) {
@@ -25,6 +29,18 @@ namespace Gnomes.Actor.Component {
 
         protected virtual void HandleActorDeath() {
         
+        }
+
+        protected virtual void HandlePossession(Actor actor) {
+            
+        }
+
+        protected virtual void HandleReleasePossession(Actor actor) {
+            
+        }
+
+        protected virtual void HandleMove(Vector3 targetVector, bool asDirection) {
+            
         }
     }
 }

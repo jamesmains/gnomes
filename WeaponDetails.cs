@@ -1,7 +1,10 @@
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace Gnomes.Actor {
+namespace Gnomes {
+    /// <summary>
+    /// Todo: find better place in file structure for this
+    /// </summary>
     [CreateAssetMenu(fileName = "New Weapon Details", menuName = "GNOME/Weapon Details")]
     public class WeaponDetails : SerializedScriptableObject {
         [HorizontalGroup("DetailsSplit", 0.8f), VerticalGroup("DetailsSplit/Left")] [SerializeField]

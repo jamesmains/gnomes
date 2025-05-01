@@ -1,12 +1,10 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using Gnomes.Actor.Behavior;
-using Gnomes.Actor.Component;
 using Gnomes.Interfaces;
 using Parent_House_Framework.Utils;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using Urban.Urban_Time;
 
 namespace Gnomes.Actor {
     public class Actor : MonoBehaviour, ISpawnable {
@@ -31,9 +29,6 @@ namespace Gnomes.Actor {
 
         [SerializeField, FoldoutGroup("Status"), ReadOnly]
         private float TimeTillDespawn;
-    
-        [SerializeField, FoldoutGroup("Debug"), ReadOnly]
-        private string BrainType;
 
         private ActorBrain Brain;
         public float CurrentLeashDistance => Brain?.LeashDistance ?? 1;
@@ -151,7 +146,6 @@ namespace Gnomes.Actor {
         private void SwapActor() {
             OnActorSet.Invoke(Details);
             Brain = Details?.BrainBehavior?.Create<ActorBrain>(this) as ActorBrain;
-            BrainType = Brain?.GetType().Name;
         }
 
         [FoldoutGroup("Buttons"),Button]
