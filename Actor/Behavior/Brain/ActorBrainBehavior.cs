@@ -3,7 +3,7 @@ using Sirenix.OdinInspector;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-namespace Gnomes.Actor.Behavior {
+namespace gnomes.Actor.Behavior.Brain {
     [Serializable]
     public abstract class ActorBrain : ActorBehavior {
         protected ActorBrain(Actor ownerActor) : base(ownerActor) {
@@ -46,14 +46,14 @@ namespace Gnomes.Actor.Behavior {
             RandomNewPosition.x = Random.Range(-1f, 1f);
             RandomNewPosition.z = Random.Range(-1f, 1f);
             if (LeaderActor == null)
-                OwnerActor.OnMoveActor?.Invoke(RandomNewPosition, true);
+                OwnerActor.OnMove?.Invoke(RandomNewPosition);
             else {
                 if (Vector3.Distance(OwnerActor.transform.position, LeaderActor.transform.position) < 1.5f) {
                     var moveAwayDirection = (OwnerActor.transform.position - LeaderActor.transform.position).normalized;
-                    OwnerActor.OnMoveActor?.Invoke(moveAwayDirection, true);
+                    OwnerActor.OnMove?.Invoke(moveAwayDirection);
                 }
                 else if (Vector3.Distance(OwnerActor.transform.position, LeaderActor.transform.position) > 2f) {
-                    OwnerActor.OnMoveActor?.Invoke(LeaderActor.transform.position, false);
+                    OwnerActor.OnMove?.Invoke(LeaderActor.transform.position);
                 }
             }
         }

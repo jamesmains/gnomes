@@ -1,10 +1,10 @@
 using System;
-using Gnomes.Actor.Behavior;
-using Gnomes.Actor.Behavior.Animation;
+using gnomes.Actor.Behavior;
+using gnomes.Actor.Behavior.Brain;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace Gnomes.Actor {
+namespace gnomes.Actor {
     [Flags]
     public enum ActorTeam {
         NoTeam = 0,

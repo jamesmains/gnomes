@@ -1,10 +1,11 @@
 using System;
+using parent_house_framework.Managed;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace Gnomes.Actor.Behavior {
+namespace gnomes.Actor.Behavior {
     [Serializable]
-    public abstract class ActorBehavior {
+    public abstract class ActorBehavior: ManagedObject {
         [FoldoutGroup("Dependencies"), ReadOnly]
         public Actor OwnerActor;
         

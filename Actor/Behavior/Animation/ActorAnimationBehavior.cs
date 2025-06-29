@@ -1,14 +1,9 @@
 using System;
-using Gnomes.Actor.Component;
+using gnomes.Actor.Component;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace Gnomes.Actor.Behavior.Animation {
-    /// <summary>
-    /// Actor Behavior Collection
-    /// Animators / Animation Controllers
-    /// Todo:
-    /// </summary>
+namespace gnomes.Actor.Behavior.Animation {
     [Serializable]
     public abstract class ActorAnimationBehavior : ActorBehavior
     {
@@ -33,6 +28,9 @@ namespace Gnomes.Actor.Behavior.Animation {
     /// </summary>
     [Serializable]
     public class ActorAnimation : ActorAnimationBehavior {
+
+        #region Properties
+        
         [SerializeField, FoldoutGroup("Settings")]
         private float TurnSpeed = 5;
     
@@ -51,6 +49,10 @@ namespace Gnomes.Actor.Behavior.Animation {
         [SerializeField, FoldoutGroup("Status"), ReadOnly]
         private Vector3 CurrentTargetScale;
         
+        #endregion
+        
+        #region Factory Methods and Constructors
+        
         public override ActorBehavior Create<T>(Actor owner) {
             return new ActorAnimation(owner);
         }
@@ -68,10 +70,12 @@ namespace Gnomes.Actor.Behavior.Animation {
             CachedScale = ScaledTransform.transform.localScale;
         }
 
-        public ActorAnimation() {
-            
-        }
+        public ActorAnimation() { }
 
+        #endregion
+        
+        #region Methods
+        
         public override void PlayAnimationByName(string animationName) {
             base.PlayAnimationByName(animationName);
             Anim.SetTrigger(animationName);
@@ -102,5 +106,8 @@ namespace Gnomes.Actor.Behavior.Animation {
             if (ScaledTransform.localScale == CurrentTargetScale) return;
             ScaledTransform.localScale = Vector3.Lerp(ScaledTransform.localScale, CurrentTargetScale, Time.deltaTime * TurnSpeed);
         }
+        
+        #endregion
+        
     }
 }

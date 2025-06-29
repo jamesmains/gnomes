@@ -1,9 +1,9 @@
 using System.Collections.Generic;
-using Parent_House_Framework.Interactions;
+using parent_house_framework.Interactions;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace Gnomes.Actor.Component.Extensions.parent_house.Interactions {
+namespace gnomes.Actor.Component.Extensions.parent_house.Interactions {
     public enum InteractionDetectionMode {
         _2d,
         _3d
@@ -26,7 +26,6 @@ namespace Gnomes.Actor.Component.Extensions.parent_house.Interactions {
         }
 
         private void TryInteract() {
-            print("Trying to interact");
             foreach (var trigger in NearbyTriggers) {
                 trigger.Value.ChangeState();
             }

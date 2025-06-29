@@ -1,6 +1,6 @@
 using System;
 
-namespace Gnomes.Interfaces {
+namespace gnomes.Interfaces {
     public interface ISpawnable {
         public Action<ISpawnable> OnSpawn{ get; set; }
         public Action<ISpawnable> OnDespawn { get; set; }

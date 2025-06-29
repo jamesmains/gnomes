@@ -1,11 +1,9 @@
-
 using System;
-using Gnomes.Actor.Behavior.Motor;
+using gnomes.Actor.Behavior.Motor;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-// Todo: Maybe find a new nav agent component
-namespace Gnomes.Actor.Component {
+namespace gnomes.Actor.Component {
     public class ActorMotor : ActorComponent
     {
         [SerializeField, FoldoutGroup("Settings")]
@@ -28,30 +26,28 @@ namespace Gnomes.Actor.Component {
         }
 
         private void Update() {
-            MotorBehavior.Update();
+            MotorBehavior?.Update();
         }
 
         private void FixedUpdate() {
-            MotorBehavior.FixedUpdate();
+            MotorBehavior?.FixedUpdate();
         }
 
-        protected override void HandleMove(Vector3 targetVector, bool asDirection) {
-            if (Actor.Dead) return;
-            MotorBehavior.Move(targetVector, asDirection);
+        protected override void HandleMove(Vector3 targetVector) {
+            if (!Actor.IsActive()) return;
+            MotorBehavior?.Move(targetVector);
         }
 
         protected override void HandleActorChanged(ActorDetails actorDetails) {
-            MotorBehavior.HandleActorChanged(actorDetails);
+            MotorBehavior?.HandleActorChanged(actorDetails);
         }
 
-        protected override void HandlePossession(Actor actor) {
-            if (actor != Actor) return;
-            MotorBehavior.HandlePossession(actor);
+        protected override void HandlePossession(Guid ownerId) {
+            MotorBehavior?.HandlePossession(ownerId);
         }
 
-        protected override void HandleReleasePossession(Actor actor) {
-            if (actor != Actor) return;
-            MotorBehavior.HandleReleasePossession(actor);
+        protected override void HandleReleasePossession(Guid ownerId) {
+            MotorBehavior?.HandleReleasePossession(ownerId);
         }
     }
 }

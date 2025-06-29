@@ -1,4 +1,4 @@
-namespace Gnomes {
+namespace gnomes {
     public class DamageInfo {
         public DamageInfo(float damage, bool didKill) {
             DamageDealt = damage;
