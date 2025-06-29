@@ -1,7 +1,7 @@
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace Gnomes {
+namespace gnomes {
     /// <summary>
     /// Todo: find better place in file structure for this
     /// </summary>

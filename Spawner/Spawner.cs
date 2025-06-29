@@ -1,13 +1,13 @@
 using System;
 using System.Collections.Generic;
-using Gnomes.Interfaces;
-using Parent_House_Framework.Utils;
+using gnomes.Interfaces;
+using parent_house_framework.Utils;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Events;
 using Random = UnityEngine.Random;
 
-namespace Gnomes.Spawner {
+namespace gnomes.Spawner {
     [Flags]
     public enum SpawnerType {
         Once = 0,

@@ -1,17 +1,14 @@
 using System;
-using Gnomes.Actor.Component;
+using gnomes.Actor.Component;
 using Pathfinding;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace Gnomes.Actor.Behavior.Motor.Extensions.AStar {
+namespace gnomes.Actor.Behavior.Motor.Extensions.AStar {
     [Serializable]
     public class ActorMotorAStar : ActorMotorBehavior {
         [SerializeField, FoldoutGroup("Dependencies"), ReadOnly]
         public FollowerEntity Agent;
-    
-        [SerializeField, FoldoutGroup("Dependencies"), ReadOnly]
-        public ActorMotor Motor;
     
         [SerializeField, FoldoutGroup("Status"), ReadOnly]
         private float CachedStopDistance;
@@ -32,19 +29,16 @@ namespace Gnomes.Actor.Behavior.Motor.Extensions.AStar {
             Motor = OwnerActor.GetComponent<ActorMotor>();
         }
 
-        public ActorMotorAStar() {
-        
-        }
+        public ActorMotorAStar() { }
 
-        public override void Update() {
-        }
+        public override void Update() { }
 
         public override void FixedUpdate() {
             Motor.IsMoving = Agent.velocity.sqrMagnitude > 0.2f;
         }
 
-        public override void Move(Vector3 moveTarget, bool asDirection) {
-            var targetPosition = asDirection ? Agent.transform.position + moveTarget: moveTarget;
+        public override void Move(Vector3 moveTarget) {
+            var targetPosition = OwnerActor.Possessed ? Agent.transform.position + moveTarget : moveTarget;
             if (Agent.destination != targetPosition) {
                 Agent.SetDestination(targetPosition);
                 if(moveTarget.x != 0)
@@ -57,11 +51,11 @@ namespace Gnomes.Actor.Behavior.Motor.Extensions.AStar {
             Agent.stopDistance = OwnerActor.Possessed ? 0 : CachedStopDistance;
         }
 
-        public override void HandlePossession(Actor actor) {
+        public override void HandlePossession(Guid ownerId) {
             Agent.stopDistance = 0f;
         }
 
-        public override void HandleReleasePossession(Actor actor) {
+        public override void HandleReleasePossession(Guid ownerId) {
             Agent.stopDistance = CachedStopDistance;
         }
     }

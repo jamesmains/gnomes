@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Gnomes.Actor {
+namespace gnomes.Actor {
     public static class ActorSearcher
     {
         private static Dictionary<int,List<Actor>> actors;

@@ -1,4 +1,4 @@
-namespace Gnomes.Actor {
+namespace gnomes.Actor {
     /// <summary>
     /// Unused ATM
     /// 

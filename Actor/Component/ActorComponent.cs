@@ -1,45 +1,50 @@
+using System;
+using parent_house_framework.Managed;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace Gnomes.Actor.Component {
-    public class ActorComponent: SerializedMonoBehaviour {
+namespace gnomes.Actor.Component {
+    public class ActorComponent: SerializedManagedGameObject {
     
-        [SerializeField, FoldoutGroup("Dependencies"),ReadOnly]
+        [SerializeField, FoldoutGroup("Status"),ReadOnly]
         public Actor Actor;
 
-        protected virtual void OnEnable() {
-            if(Actor == null) Actor = GetComponent<Actor>();
-        
-            Actor.OnMoveActor += HandleMove;
+        protected override void OnEnable() {
+            base.OnEnable();
+            if(!Actor) Actor = GetComponent<Actor>();
+            Actor.OnMove += HandleMove;
             Actor.OnPossessed += HandlePossession;
             Actor.OnReleasePossession += HandleReleasePossession;
             Actor.OnActorSet += HandleActorChanged;
+            Actor.OnLifeStateChange += HandleActorLifeStateChange;
         }
     
-        protected virtual void OnDisable() {
-            Actor.OnMoveActor -= HandleMove;
+        protected override void OnDisable() {
+            base.OnDisable();
+            Actor.OnMove -= HandleMove;
             Actor.OnPossessed -= HandlePossession;
             Actor.OnReleasePossession -= HandleReleasePossession;
             Actor.OnActorSet -= HandleActorChanged;
+            Actor.OnLifeStateChange -= HandleActorLifeStateChange;
         }
     
         protected virtual void HandleActorChanged(ActorDetails newDetails) {
         
         }
 
-        protected virtual void HandleActorDeath() {
+        protected virtual void HandleActorLifeStateChange(bool isAlive) {
         
         }
 
-        protected virtual void HandlePossession(Actor actor) {
+        protected virtual void HandlePossession(Guid ownerId) {
             
         }
 
-        protected virtual void HandleReleasePossession(Actor actor) {
+        protected virtual void HandleReleasePossession(Guid ownerId) {
             
         }
 
-        protected virtual void HandleMove(Vector3 targetVector, bool asDirection) {
+        protected virtual void HandleMove(Vector3 targetVector) {
             
         }
     }

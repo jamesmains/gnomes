@@ -1,36 +1,35 @@
 using System;
-using Gnomes.Actor.Behavior;
-using Gnomes.Interfaces;
-using Parent_House_Framework.Utils;
+using System.Collections.Generic;
+using gnomes.Actor.Behavior.Brain;
+using gnomes.Spawner;
+using parent_house_framework.Values;
 using Sirenix.OdinInspector;
 using UnityEngine;
-using Urban.Urban_Time;
 
-namespace Gnomes.Actor {
-    public class Actor : MonoBehaviour, ISpawnable {
-        [SerializeField, FoldoutGroup("Settings")]
-        [Tooltip("Leave off for Actor Spawner")]
+namespace gnomes.Actor {
+    public class Actor : Spawnable {
+        [SerializeField, FoldoutGroup("Settings")] [Tooltip("Leave off for Actor Spawner")]
         private bool SetActorOnStart;
-    
+
         [SerializeField, FoldoutGroup("Settings"), ShowIf(nameof(SetActorOnStart))]
         private ActorDetails DefaultActor;
 
         [SerializeField, FoldoutGroup("Status"), ReadOnly]
         private ActorDetails CurrentActorDetails;
-    
-        [SerializeField, FoldoutGroup("Status"), ReadOnly]
-        private bool BrainActive;
-
+        
         [SerializeField, FoldoutGroup("Status"), ReadOnly]
         public bool Possessed;
-    
-        [SerializeField, FoldoutGroup("Status"), ReadOnly]
-        public bool Dead;
 
         [SerializeField, FoldoutGroup("Status"), ReadOnly]
         private float TimeTillDespawn;
 
         private ActorBrain Brain;
+        private bool BrainIsActive() => Brain != null && !Possessed && IsActive();
+
+        public bool IsActive() => BindingBool.TrueForAll(Bindings);
+        public readonly Dictionary<Guid, BindingBool> Bindings = new();
+
+        // Todo: need to decouple these from this class
         public float CurrentLeashDistance => Brain?.LeashDistance ?? 1;
         public float CurrentStopDistance => Brain?.StopDistance ?? 1;
 
@@ -38,121 +37,82 @@ namespace Gnomes.Actor {
             get => CurrentActorDetails;
             private set {
                 CurrentActorDetails = value;
-                SwapActor();
+                HandleSwapActor();
             }
         }
 
         // Setup
         public Action<ActorDetails> OnActorSet;
+
         // Possession
-        public static Action<Actor> OnTryPossess;
-        public static Action<Actor> OnPossessed;
-        public static Action<Actor> OnReleasePossession;
-        // Movement
-        public Action<Vector3, bool> OnMoveActor;
-        // Weapon
-        public Action<Vector2> OnAimWeapon;
-        public Action OnUseWeapon;
-        // Interactions
+        public Action<Guid> OnPossessed;
+        public Action<Guid> OnReleasePossession;
+
+        // Actions
+        public Action<Vector3> OnMove;
+        public Action<Vector2> OnAim;
+        public Action OnUse;
         public Action OnInteract;
+
         // Vitals
-        public Action OnRevive;
-        public Action OnDeath;
-        // Spawning
-        public Action<ISpawnable> OnSpawn { get; set; }
-        public Action<ISpawnable> OnDespawn { get; set; }
-    
-        private void Awake() {
-            BrainActive = true;
-        }
+        public Action<bool> OnLifeStateChange;
 
         private void Start() {
-            if (DefaultActor != null && SetActorOnStart) {
-                Details = DefaultActor;
-            }
+            Details = DefaultActor;
         }
 
-        private void OnEnable() {
-            OnTryPossess += HandlePossession;
+        protected override void OnEnable() {
+            base.OnEnable();
+            OnPossessed += HandlePossession;
             OnReleasePossession += HandleReleasePossession;
-            Dead = false;
+            OnSpawn += delegate { OnLifeStateChange?.Invoke(true); };
         }
 
-        private void OnDisable() {
-            OnTryPossess -= HandlePossession;
+        protected override void OnDisable() {
+            base.OnDisable();
+            OnPossessed -= HandlePossession;
             OnReleasePossession -= HandleReleasePossession;
-            Despawn(); // Todo: Determine if this is a valid fallback
+            OnSpawn -= delegate { OnLifeStateChange?.Invoke(true); };
+            Despawn();
         }
 
         private void Update() {
-            // Note: holds reference to TimeManager which is specific to URPG currently.
-            if (!TimeManager.TimeIsRunning) return;
-            if (Dead) {
-                if (Time.time > TimeTillDespawn) {
-                    if (Details?.DespawnEffect != null) {
-                        Pooler.SpawnAt(Details.DespawnEffect, transform.position);
-                    }
-
-                    this.gameObject.SetActive(false);
-                    return;
-                }
-            }
-            else TimeTillDespawn = Details?.DespawnTimer + Time.time ?? 1f + Time.time;
-            if (Brain == null || !BrainActive) return; // Check if dead before updating brain? But there may be functionality we want executed on dead actors
-            Brain.Update();
+            if (BrainIsActive())
+                Brain.Update();
         }
 
         private void FixedUpdate() {
-            // Note: holds reference to TimeManager which is specific to URPG currently.
-            if (Brain == null || !BrainActive || !TimeManager.TimeIsRunning) return; // Check if dead before updating brain?
-            Brain.FixedUpdate();
-        }
-    
-        public void Spawn() {
-            OnSpawn?.Invoke(this);
-            ReviveActor();
+            if (BrainIsActive())
+                Brain.Update();
         }
 
-        public void Despawn() {
-            OnDespawn?.Invoke(this);
-        }
-
-        private void HandlePossession(Actor actor) {
-            if (actor != this) return;
-            BrainActive = false;
+        private void HandlePossession(Guid ownerId) {
             Possessed = true;
-            OnPossessed.Invoke(this);
         }
 
-        [FoldoutGroup("Buttons"),Button]
-        private void HandleReleasePossession(Actor actor) {
-            if (actor != this) return;
+        [FoldoutGroup("Buttons"), Button]
+        private void HandleReleasePossession(Guid ownerId) {
             Possessed = false;
-            BrainActive = true;
         }
 
-        [FoldoutGroup("Buttons"),Button]
+        [FoldoutGroup("Buttons"), Button]
         public void ReviveActor() {
-            Dead = false;
-            OnRevive?.Invoke();
+            OnLifeStateChange?.Invoke(true);
         }
 
-        [FoldoutGroup("Buttons"),Button]
+        [FoldoutGroup("Buttons"), Button]
         public void KillActor() {
-            Dead = true;
-            OnDeath?.Invoke();
-        }
-    
-        private void SwapActor() {
-            OnActorSet.Invoke(Details);
-            Brain = Details?.BrainBehavior?.Create<ActorBrain>(this) as ActorBrain;
+            OnLifeStateChange?.Invoke(false);
         }
 
-        [FoldoutGroup("Buttons"),Button]
+        [FoldoutGroup("Buttons"), Button]
         public void SwapActor(ActorDetails newDetails) {
             Details = newDetails;
         }
 
-    
+        private void HandleSwapActor() {
+            OnActorSet.Invoke(Details);
+            Brain = Details?.BrainBehavior?.Create<ActorBrain>(this) as ActorBrain;
+        }
     }
 }

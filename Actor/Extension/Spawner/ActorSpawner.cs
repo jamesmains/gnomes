@@ -2,8 +2,8 @@ using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace Gnomes.Actor.Extension.Spawner {
-    public class ActorSpawner : Gnomes.Spawner.Spawner {
+namespace gnomes.Actor.Extension.Spawner {
+    public class ActorSpawner : gnomes.Spawner.Spawner {
         [SerializeField, FoldoutGroup("Settings")]
         private List<ActorDetails> ActorPool;
     

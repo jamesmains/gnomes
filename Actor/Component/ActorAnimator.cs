@@ -1,9 +1,8 @@
-using System;
-using Gnomes.Actor.Behavior.Animation;
+using gnomes.Actor.Behavior.Animation;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace Gnomes.Actor.Component {
+namespace gnomes.Actor.Component {
     
     [RequireComponent(typeof(Actor))]
     public class ActorAnimator : ActorComponent {
@@ -12,6 +11,7 @@ namespace Gnomes.Actor.Component {
         
         [SerializeField, FoldoutGroup("Settings")]
         private ActorAnimationBehavior AnimationBehavior;
+        
         protected override void OnEnable() {
             base.OnEnable();
             FetchDependencies();
@@ -33,8 +33,9 @@ namespace Gnomes.Actor.Component {
             // Todo: Handle character change on Animator
         }
     
-        protected override void HandleActorDeath() {
-            AnimationBehavior.PlayAnimationById(DeathTriggerAnimationId);
+        protected override void HandleActorLifeStateChange(bool isAlive) {
+            if(!isAlive)
+                AnimationBehavior.PlayAnimationById(DeathTriggerAnimationId);
         }
     }
 }
