@@ -7,11 +7,19 @@ namespace gnomes.Actor.Behavior {
     [Serializable]
     public abstract class ActorBehavior: ManagedObject {
         [FoldoutGroup("Dependencies"), ReadOnly]
-        public Actor OwnerActor;
+        public Gnome ParentGnome;
         
-        public abstract ActorBehavior Create<T>(Actor owner);
-        public abstract void Update();
-        public abstract void FixedUpdate();
+        public virtual void Update(){}
+        public virtual void FixedUpdate(){}
+        public virtual void HandleUse(){}
+        public virtual void HandleInteract(){}
+        public virtual void HandleKill(){}
+        public virtual void HandleRevive(){}
+        public virtual void HandleJump(){}
+        public virtual void HandleMove(Vector2 moveVector){}
+        public virtual void HandleAim(Vector2 aimVector){}
+        public virtual void HandleChangeDetails(ActorDetails actorDetails){}
+        
 
         #if UNITY_EDITOR
         [FoldoutGroup("Debug"), ShowIf("HasErrorMessage"), SerializeField, ReadOnly]
@@ -23,10 +31,16 @@ namespace gnomes.Actor.Behavior {
         private bool HasWarningMessage ()=> BehaviorWarningMessage != String.Empty;
         #endif
         
-        protected ActorBehavior(Actor ownerActor) {
-            OwnerActor = ownerActor;
+        public virtual void Init(Gnome parentGnome) {
+            ParentGnome = parentGnome;
+            parentGnome.OnMove += HandleMove;
+            parentGnome.OnJump += HandleJump;
+            parentGnome.OnAim += HandleAim;
+            parentGnome.OnUse += HandleUse;
+            parentGnome.OnInteract += HandleInteract;
+            parentGnome.OnKill += HandleKill;
+            parentGnome.OnRevive += HandleRevive;
+            parentGnome.OnChangeDetails += HandleChangeDetails;
         }
-        
-        protected ActorBehavior() {}
     }
 }

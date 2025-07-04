@@ -10,9 +10,6 @@ namespace gnomes.Actor.Player {
         
         [SerializeField, FoldoutGroup("Settings")]
         private bool killOnRelease = false;
-        
-        [SerializeField, FoldoutGroup("Settings")]
-        private GameObject ActorPrefab;
 
         private void OnEnable() {
             PlayerManager.AddPlayer += HandleAddPlayer;
@@ -26,16 +23,16 @@ namespace gnomes.Actor.Player {
 
         private void HandleAddPlayer(Guid playerId) {
             var player = PlayerManager.Players[playerId];
-            var actorObj = Pooler.SpawnAt(ActorPrefab, player.PlayerController.transform.position);
-            if (actorObj.TryGetComponent(out Actor spawnedActor)) {
-                player.PlayerController.PossessActor(spawnedActor);
-                spawnedActor.Spawn();
+            if (player.TryGetComponent(out Gnome spawnedActor)) {
+                spawnedActor.Possess(player.GetId());
             }
         }
         
         private void HandleRemovePlayer(Guid playerId) {
             var player = PlayerManager.Players[playerId];
-            player.PlayerController.ReleasePossession(killOnRelease);
+            if (player.TryGetComponent(out Gnome spawnedActor)) {
+                spawnedActor.Possess(player.GetId());
+            }
         }
     }
 }

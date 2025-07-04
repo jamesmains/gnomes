@@ -3,22 +3,27 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using parent_house_framework.Managed;
+using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Users;
 
 namespace gnomes.Actor.Player {
-    public class PlayerControllerBase : ManagedGameObject {
+    public class PlayerControllerBase : SerializedManagedGameObject {
+        
+        [SerializeField, FoldoutGroup("Status"),ReadOnly]
+        public int DeviceId;
+        
         private InputUser inputUser;
-        private List<(InputAction, Action<InputAction.CallbackContext>)> registeredCallbacks = new();
-        private Actor CurrentActor;
         private bool IsOwner(int deviceId) => deviceId == PlayerManager.Players[GetId()].DeviceId;
+        private List<(InputAction, Action<InputAction.CallbackContext>)> registeredCallbacks = new();
         private Coroutine WaitForReturnRoutine;
         private const float RejoinTime = 5f;
 
-        public void RegisterInputSystem(InputDevice device, InputActionAsset actionsAsset) {
+        public virtual void RegisterInputSystem(InputDevice device, InputActionAsset actionsAsset) {
             InputControlScheme? matchedScheme = null;
-
+            registeredCallbacks = new();
+            
             foreach (var scheme in actionsAsset.controlSchemes) {
                 if (scheme.SupportsDevice(device)) {
                     matchedScheme = scheme;
@@ -30,6 +35,8 @@ namespace gnomes.Actor.Player {
                 Debug.LogError($"No matching control schemes for {device.name}");
                 return;
             }
+
+            DeviceId = device.deviceId;
 
             var inputActions = Instantiate(actionsAsset);
             inputUser = InputUser.CreateUserWithoutPairedDevices();
@@ -52,7 +59,10 @@ namespace gnomes.Actor.Player {
                     action.performed += callback;
                     if (action.type == InputActionType.Value)
                         action.canceled += callback;
-
+                    if(registeredCallbacks == null) {
+                        Debug.Log("Registered callbacks is null!");
+                        return;
+                    }
                     registeredCallbacks.Add((action, callback));
                 }
                 else {
@@ -61,7 +71,7 @@ namespace gnomes.Actor.Player {
             }
         }
 
-        public void UnregisterInputSystem() {
+        public virtual void UnregisterInputSystem() {
             foreach (var (action, callback) in registeredCallbacks) {
                 action.performed -= callback;
                 if (action.type == InputActionType.Value)
@@ -113,51 +123,25 @@ namespace gnomes.Actor.Player {
                 time += Time.deltaTime;
                 yield return new WaitForEndOfFrame();
             }
-            CurrentActor?.OnReleasePossession.Invoke(GetId());
+            HandleLeave();
             PlayerManager.TryLeave.Invoke(GetId());
         }
 
-        private void Move(InputAction.CallbackContext ctx) {
-            Vector2 input = ctx.ReadValue<Vector2>();
-            // callbackContext.ReadValue<Vector2>();
-            CurrentActor?.OnMove?.Invoke(input);
-        }
+        protected virtual void Move(InputAction.CallbackContext ctx) { }
 
-        private void PrimaryAction(InputAction.CallbackContext ctx) {
-            CurrentActor?.OnUse?.Invoke();
-        }
+        protected virtual void HandleLeave() { }
 
-        private void SecondaryAction(InputAction.CallbackContext ctx) {
-            CurrentActor?.OnInteract?.Invoke();
-        }
+        protected virtual void PrimaryAction(InputAction.CallbackContext ctx) { }
 
-        private void Interact(InputAction.CallbackContext ctx) {
-        }
+        protected virtual void SecondaryAction(InputAction.CallbackContext ctx) { }
 
-        private void Confirm(InputAction.CallbackContext ctx) {
-        }
+        protected virtual void Interact(InputAction.CallbackContext ctx) { }
 
-        private void Cancel(InputAction.CallbackContext ctx) {
+        protected virtual void Confirm(InputAction.CallbackContext ctx) { }
+
+        protected virtual void Cancel(InputAction.CallbackContext ctx) {
+            // Todo: Figure out solution for this debug setup
             PlayerManager.TryLeave.Invoke(GetId());
-        }
-
-        /// <summary>
-        /// Attaches the player's input to the Actor
-        /// </summary>
-        /// <param name="actor">Target actor to control</param>
-        public void PossessActor(Actor actor) {
-            CurrentActor = actor;
-            CurrentActor?.OnPossessed?.Invoke(GetId());
-        }
-
-        /// <summary>
-        /// Releases control of the actor from the player
-        /// </summary>
-        public void ReleasePossession(bool killOnRelease = false) {
-            if (killOnRelease)
-                CurrentActor?.KillActor();
-            CurrentActor?.OnReleasePossession?.Invoke(GetId());
-            CurrentActor = null;
         }
     }
 }

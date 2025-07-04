@@ -8,10 +8,6 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 namespace gnomes.Actor.Player {
-    public struct PlayerInstance {
-        public int DeviceId;
-        public PlayerControllerBase PlayerController;
-    }
     public class PlayerManager: ManagedGameObject {
         [SerializeField, FoldoutGroup("Settings")]
         private InputActionAsset ActionAsset;
@@ -19,7 +15,7 @@ namespace gnomes.Actor.Player {
         private GameObject PlayerPrefab; 
         
         // playerId, deviceId
-        public static readonly Dictionary<Guid,PlayerInstance> Players = new();
+        public static readonly Dictionary<Guid,PlayerControllerBase> Players = new();
         public static InputSystem_Actions Input;
 
         public static Action<Guid> AddPlayer;
@@ -54,12 +50,15 @@ namespace gnomes.Actor.Player {
             // Requires prefab has a Player component
             if (newPlayerObj.TryGetComponent(out PlayerControllerBase player)) {
                 
+                // Assign the player to the deviceId
+                player.DeviceId = deviceId;
+                
                 // Add player to dictionary
-                Players.Add(player.GetId(),new PlayerInstance() {
-                    PlayerController = player,
-                    DeviceId = deviceId
-                });
+                Players.Add(player.GetId(), player);
+                
+                // Broadcast AddPlayer event
                 AddPlayer.Invoke(player.GetId());
+                
                 // Register inputs
                 player.RegisterInputSystem(callbackContext.control.device,ActionAsset);
             }
@@ -74,9 +73,9 @@ namespace gnomes.Actor.Player {
                 return;
             }
 
-            RemovePlayer.Invoke(player.PlayerController.GetId());
-            player.PlayerController.UnregisterInputSystem();
-            player.PlayerController.gameObject.SetActive(false);
+            RemovePlayer.Invoke(player.GetId());
+            player.UnregisterInputSystem();
+            player.gameObject.SetActive(false);
             Players.Remove(playerId);
         }
     }

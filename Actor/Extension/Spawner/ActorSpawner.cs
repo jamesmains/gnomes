@@ -12,8 +12,8 @@ namespace gnomes.Actor.Extension.Spawner {
 
         protected override void Spawn() {
             base.Spawn();
-            var spawnedActor = CurrentSpawningObject.GetComponent<Actor>();
-            spawnedActor.SwapActor(ActorPool[GetIndex(ref ActorSpawnIndex, ActorPool.Count)]);
+            var spawnedActor = CurrentSpawningObject.GetComponent<Gnome>();
+            spawnedActor.ChangeDetails(ActorPool[GetIndex(ref ActorSpawnIndex, ActorPool.Count)]);
         }
     }
 }

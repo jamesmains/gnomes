@@ -1,5 +1,5 @@
 namespace gnomes.Interfaces {
     public interface IDamageable {
-        public void TakeDamage(Actor.Actor attacker, float damage);       
+        public void TakeDamage(Actor.Gnome attacker, float damage);       
     }
 }

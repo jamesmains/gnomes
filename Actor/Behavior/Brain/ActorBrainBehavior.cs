@@ -6,11 +6,6 @@ using Random = UnityEngine.Random;
 namespace gnomes.Actor.Behavior.Brain {
     [Serializable]
     public abstract class ActorBrain : ActorBehavior {
-        protected ActorBrain(Actor ownerActor) : base(ownerActor) {
-        }
-
-        protected ActorBrain() : base() {
-        }
 
         [SerializeField, FoldoutGroup("Settings")]
         public float LeashDistance = 5f;
@@ -21,39 +16,32 @@ namespace gnomes.Actor.Behavior.Brain {
 
     [Serializable]
     public class MinionBrain : ActorBrain {
-        public override ActorBehavior Create<T>(Actor owner) {
-            return new MinionBrain(owner);
-        }
-        
-        public MinionBrain(Actor owner) : base(owner) {
-        }
-
-        public MinionBrain() : base() {
-        }
 
         // Todo: add seek function for finding leader?
 
         [SerializeField, FoldoutGroup("Debug"), ReadOnly]
-        public Actor LeaderActor;
+        public Gnome LeaderActor;
 
         [SerializeField, FoldoutGroup("Debug"), ReadOnly]
         private float LastTimeSignaled;
 
         public override void Update() {
+            Debug.Log("Testing minion brain!");
+            return;
             if (!(Time.time > LastTimeSignaled + 1f)) return;
             LastTimeSignaled = Time.time;
             Vector3 RandomNewPosition = Vector3.zero;
             RandomNewPosition.x = Random.Range(-1f, 1f);
             RandomNewPosition.z = Random.Range(-1f, 1f);
             if (LeaderActor == null)
-                OwnerActor.OnMove?.Invoke(RandomNewPosition);
+                ParentGnome.OnMove?.Invoke(RandomNewPosition);
             else {
-                if (Vector3.Distance(OwnerActor.transform.position, LeaderActor.transform.position) < 1.5f) {
-                    var moveAwayDirection = (OwnerActor.transform.position - LeaderActor.transform.position).normalized;
-                    OwnerActor.OnMove?.Invoke(moveAwayDirection);
+                if (Vector3.Distance(ParentGnome.transform.position, LeaderActor.transform.position) < 1.5f) {
+                    var moveAwayDirection = (ParentGnome.transform.position - LeaderActor.transform.position).normalized;
+                    ParentGnome.OnMove?.Invoke(moveAwayDirection);
                 }
-                else if (Vector3.Distance(OwnerActor.transform.position, LeaderActor.transform.position) > 2f) {
-                    OwnerActor.OnMove?.Invoke(LeaderActor.transform.position);
+                else if (Vector3.Distance(ParentGnome.transform.position, LeaderActor.transform.position) > 2f) {
+                    ParentGnome.OnMove?.Invoke(LeaderActor.transform.position);
                 }
             }
         }
@@ -64,16 +52,6 @@ namespace gnomes.Actor.Behavior.Brain {
 
     [Serializable]
     public class LeaderBrain : ActorBrain {
-        public override ActorBehavior Create<T>(Actor owner) {
-            return new LeaderBrain(owner);
-        }
-
-        public LeaderBrain(Actor ownerActor) : base(ownerActor) {
-        }
-
-        public LeaderBrain() : base() {
-        }
-
         public override void Update() {
         }
 
